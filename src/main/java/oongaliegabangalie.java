@@ -6,6 +6,8 @@ public class oongaliegabangalie {
     private static final String NEWLINE = System.lineSeparator();
     private static final String BOT_NAME = "Oongaliegabangalie";
 
+    private static final int MAX_TASKS = 100;
+
     // annoyance messages in array format
     private static final String[] ANNOYANCE_MSGS = {
             "", // padding
@@ -68,13 +70,32 @@ public class oongaliegabangalie {
         System.out.println(echo);
     }
 
+    private static void addTask(String task, String[] tasks, int taskCount) {
+        String message = DIVIDER + NEWLINE + "added: " + task + NEWLINE + DIVIDER;
+        System.out.println(message);
+    }
+
+    private static void listTasks(String[] tasks, int taskCount) {
+        System.out.println(DIVIDER);
+
+        for (int i = 0; i < taskCount; i++) {
+            System.out.println((i +1) + ". " + tasks[i]);
+        }
+
+        System.out.println(DIVIDER);
+    }
+
     public static void main(String[] args) {
         printGreeting();
 
         Scanner scanner = new Scanner(System.in);
         String userInput;
+
         int commandCount = 0;
         boolean reachedMaxAnnoyance = false;
+
+        String[] tasks = new String[MAX_TASKS];
+        int taskCount = 0;
 
         do {
             userInput = scanner.nextLine();
@@ -86,7 +107,13 @@ public class oongaliegabangalie {
                     reachedMaxAnnoyance = true;
                 }
 
-                echoCommand(userInput, commandCount);
+                if (userInput.equalsIgnoreCase("list")) {
+                    listTasks(tasks, taskCount);
+                } else {
+                    tasks[taskCount] = userInput;
+                    addTask(userInput, tasks, taskCount);
+                    taskCount++;
+                }
             }
         } while (!userInput.equalsIgnoreCase("bye"));
 
