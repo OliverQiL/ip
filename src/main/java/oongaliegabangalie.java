@@ -1,3 +1,5 @@
+import java.util.Scanner;
+
 public class oongaliegabangalie {
     private static final String DIVIDER = "____________________________________________________________";
     private static final String NEWLINE = System.lineSeparator();
@@ -19,8 +21,23 @@ public class oongaliegabangalie {
         System.out.println(goodbye);
     }
 
+    private static void echoCommand(String command) {
+        String echo = DIVIDER + NEWLINE + command + NEWLINE + DIVIDER;
+        System.out.println(echo);
+    }
+
     public static void main(String[] args) {
         printGreeting();
+
+        Scanner scanner = new Scanner(System.in);
+        String userInput;
+        do {
+            userInput = scanner.nextLine();
+            if (!userInput.equalsIgnoreCase("bye")) { //returns bool comparing 2 strings ignore case
+                echoCommand(userInput);
+            }
+        } while (!userInput.equalsIgnoreCase("bye"));
+
         printGoodbye();
     }
 }
