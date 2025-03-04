@@ -70,19 +70,74 @@ public class oongaliegabangalie {
         System.out.println(echo);
     }
 
-    private static void addTask(String task, String[] tasks, int taskCount) {
-        String message = DIVIDER + NEWLINE + "added: " + task + NEWLINE + DIVIDER;
+    /* adds a new task to task list, stores in task array, confirms with user, and updates taskCount
+    task = task to add
+    tasks = the array storing all tasks
+    taskCount = the current count of tasks in the array
+     */
+    private static int addTask(Task task, Task[] tasks, int taskCount) {
+        // add task to array
+        tasks[taskCount] = task;
+
+        // confirms with userv
+        String message = DIVIDER + NEWLINE + "added: " + task.description + NEWLINE + DIVIDER;
         System.out.println(message);
+
+        // return updated task count
+        return taskCount + 1;
     }
 
-    private static void listTasks(String[] tasks, int taskCount) {
+    /* displays all tasks in the task list
+    tasks = the array storing all tasks
+    taskCount = the current count of tasks in the array
+     */
+    private static void listTasks(Task[] tasks, int taskCount) {
         System.out.println(DIVIDER);
+        System.out.println("Here are the tasks in your list:");
 
         for (int i = 0; i < taskCount; i++) {
-            System.out.println((i +1) + ". " + tasks[i]);
+            System.out.println((i +1) + ". " + tasks[i]); // toString() in Task Class is automatically called
         }
 
         System.out.println(DIVIDER);
+    }
+
+    /* marks specific task as done
+    tasks = the array storing all tasks
+    taskIndex = the index of the task to mark done
+     */
+    private static void markTask(Task[] tasks, int taskIndex) {
+        // check if taskIndex is valid
+        if (taskIndex >= 0 && taskIndex < tasks.length && tasks[taskIndex] != null) {
+            tasks[taskIndex].markAsDone();
+            System.out.println(DIVIDER);
+            System.out.println(" Nice! I've marked this task as done:");
+            System.out.println("   " + tasks[taskIndex]);
+            System.out.println(DIVIDER);
+        } else {
+            System.out.println(DIVIDER);
+            System.out.println(" Invalid task number!");
+            System.out.println(DIVIDER);
+        }
+    }
+
+    /* marks specific task as not done
+    tasks = the array storing all tasks
+    taskIndex = the index of the task to mark not done
+     */
+    private static void unmarkTask(Task[] tasks, int taskIndex) {
+        // check if taskIndex is valid
+        if (taskIndex >= 0 && taskIndex < tasks.length && tasks[taskIndex] != null) {
+            tasks[taskIndex].markAsNotDone();
+            System.out.println(DIVIDER);
+            System.out.println(" OK, I've marked this task as not done yet:");
+            System.out.println("   " + tasks[taskIndex]);
+            System.out.println(DIVIDER);
+        } else {
+            System.out.println(DIVIDER);
+            System.out.println(" Invalid task number!");
+            System.out.println(DIVIDER);
+        }
     }
 
     public static void main(String[] args) {
@@ -94,28 +149,50 @@ public class oongaliegabangalie {
         int commandCount = 0;
         boolean reachedMaxAnnoyance = false;
 
-        String[] tasks = new String[MAX_TASKS];
+        // initialize task storage with max capacity as defined
+        Task[] tasks = new Task[MAX_TASKS];
         int taskCount = 0;
 
+        // main program loop - continues until user types bye
         do {
             userInput = scanner.nextLine();
             if (!userInput.equalsIgnoreCase("bye")) { //returns bool comparing 2 strings ignore case
                 commandCount++;
 
+                // check if we've reached max annoyance level
                 int annoyanceLevel = Math.min((commandCount / 5), ANNOYANCE_MSGS.length - 1);
                 if (annoyanceLevel == ANNOYANCE_MSGS.length - 1) { // reached max annoyance
                     reachedMaxAnnoyance = true;
                 }
 
-                if (userInput.equalsIgnoreCase("list")) {
+                // logic for different command types
+                if (userInput.equalsIgnoreCase("list")) { // list all tasks
                     listTasks(tasks, taskCount);
-                } else {
-                    tasks[taskCount] = userInput;
-                    addTask(userInput, tasks, taskCount);
-                    taskCount++;
+                } else if (userInput.startsWith("mark ")) { // mark task as done
+                    try {
+                        int taskNumber = Integer.parseInt(userInput.substring(5).trim()); // abstract item number
+                        markTask(tasks, taskNumber - 1);
+                    } catch (NumberFormatException e) {
+                        System.out.println(DIVIDER);
+                        System.out.println("Please provide a valid task number");
+                        System.out.println(DIVIDER);
+                    }
+                } else if (userInput.startsWith("unmark ")) { // mark task as not done
+                    try {
+                        int taskNumber = Integer.parseInt(userInput.substring(7).trim());
+                        unmarkTask(tasks, taskNumber - 1);
+                    } catch (NumberFormatException e) {
+                        System.out.println(DIVIDER);
+                        System.out.println("Please provide a valid task number");
+                        System.out.println(DIVIDER);
+                    }
+                } else { // add new task to list
+                    Task newTask = new Task(userInput);
+                    taskCount = addTask(newTask, tasks, taskCount);
                 }
             }
-        } while (!userInput.equalsIgnoreCase("bye"));
+
+        } while (!userInput.equalsIgnoreCase("bye")); // exit command
 
         printGoodbye(reachedMaxAnnoyance);
     }
