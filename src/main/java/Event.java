@@ -1,0 +1,18 @@
+public class Event extends Task {
+
+    // new variables - start and end time
+    protected String from;
+    protected String to;
+
+    // constructs a new event with description, start and end times
+    public Event(String description, String from, String to) {
+        super(description);
+        this.from = from;
+        this.to = to;
+    }
+
+    @Override
+    public String toString() {
+        return "[E]" + super.toString() + " (from: " + from + " to: " + to + ")";
+    }
+}
