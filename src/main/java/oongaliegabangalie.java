@@ -128,16 +128,34 @@ public class oongaliegabangalie {
     tasks = the array storing all tasks
     taskIndex = the index of the task to mark done
      */
-    private static void markTask(Task[] tasks, int taskIndex, int taskCount) throws botException{
+    private static void markTask(String input ,Task[] tasks, int taskCount) throws botException {
+        // extract the task number
+        String taskNumberStr = input.substring(5).trim();
+
+        // check if the task number is provided
+        if (taskNumberStr.isEmpty()) {
+            throw new botException("PLease provide a task number after 'mark'");
+        }
+
+        // parse task number
+        int taskIndex;
+        try {
+            taskIndex = Integer.parseInt(taskNumberStr) - 1;
+        } catch (NumberFormatException e) {
+            throw new botException("'" + taskNumberStr + "' is not a valid task number");
+        }
+
         // check if taskIndex is valid
         if (taskIndex < 0 || taskIndex >= taskCount) {
             throw new botException("Task #" + (taskIndex + 1) + " doesn't exist! Check your list again.");
         }
 
+        // check if task is already done
         if (tasks[taskIndex].isDone) {
             throw new botException("Task #" + (taskIndex + 1) + " is already marked as done!");
         }
 
+        // mark as done
         tasks[taskIndex].markAsDone();
         System.out.println(DIVIDER);
         System.out.println(" Nice! I've marked this task as done:");
@@ -149,16 +167,34 @@ public class oongaliegabangalie {
     tasks = the array storing all tasks
     taskIndex = the index of the task to mark not done
      */
-    private static void unmarkTask(Task[] tasks, int taskIndex, int taskCount) throws botException{
+    private static void unmarkTask(String input, Task[] tasks, int taskCount) throws botException {
+        // extract task number
+        String taskNumberStr = input.substring(7).trim();
+
+        // check if the task number is provided
+        if (taskNumberStr.isEmpty()) {
+            throw new botException("Please provide a task number after 'unmark'");
+        }
+
+        // parse task number
+        int taskIndex;
+        try {
+            taskIndex = Integer.parseInt(taskNumberStr) - 1;
+        } catch (NumberFormatException e) {
+            throw new botException("'" + taskNumberStr + "' is not a valid task number");
+        }
+
         // check if taskIndex is valid
         if (taskIndex < 0 || taskIndex >= taskCount) {
             throw new botException("Task #" + (taskIndex + 1) + " doesn't exist! Check your list again.");
         }
 
+        // check if task is already not done
         if (!tasks[taskIndex].isDone) {
             throw new botException("Task #" + (taskIndex + 1) + " is already marked as not done!");
         }
 
+        // unmark task
         tasks[taskIndex].markAsNotDone();
         System.out.println(DIVIDER);
         System.out.println(" OK, I've marked this task as not done yet:");
@@ -305,22 +341,12 @@ public class oongaliegabangalie {
 
                     // marking function
                     else if (userInput.startsWith("mark ")) { // mark task as done
-                        try {
-                            int taskNumber = Integer.parseInt(userInput.substring(5).trim()); // abstract item number
-                            markTask(tasks, taskNumber - 1, taskCount);
-                        } catch (NumberFormatException e) {
-                            throw new botException("please provide valid task number");
-                        }
+                        markTask(userInput, tasks, taskCount);
                     }
 
                     // unmarking function
                     else if (userInput.startsWith("unmark ")) { // mark task as not done
-                        try {
-                            int taskNumber = Integer.parseInt(userInput.substring(7).trim());
-                            unmarkTask(tasks, taskNumber - 1, taskCount);
-                        } catch (NumberFormatException e) {
-                            throw new botException("please provide valid task number");
-                        }
+                        unmarkTask(userInput, tasks, taskCount);
                     }
 
                     // todo task
@@ -340,7 +366,7 @@ public class oongaliegabangalie {
 
                     // if none of the above (default)
                     else {
-                        throw new botException("i dunno what that means bruh");
+                        throw new botException("I don't know what that means");
                     }
 
 
