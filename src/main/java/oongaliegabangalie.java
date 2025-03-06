@@ -208,7 +208,7 @@ public class oongaliegabangalie {
         int fromIndex = content.indexOf(EVENT_FROM_MARKER);
         int toIndex = content.indexOf(EVENT_TO_MARKER);
 
-        if (fromIndex == -1 || fromIndex == -1) {
+        if (fromIndex == -1 || toIndex == -1) {
             System.out.println("Please provide both start and end times with '/from' and '/to'");
             return taskCount;
         }
