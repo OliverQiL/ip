@@ -86,7 +86,7 @@ public class oongaliegabangalie {
     private static int addTask(Task task, Task[] tasks, int taskCount) throws botException{
         // check if we've reached max capacity in list
         if (taskCount >= MAX_TASKS) {
-            throw new botException("max limit reached");
+            throw new botException("You're so screwed... number of tasks has reached its limit man");
         }
 
         // add task to array
@@ -112,7 +112,7 @@ public class oongaliegabangalie {
 
         // check if list is empty
         if (taskCount == 0) {
-            throw new botException("Your list is empty! Nothing to see here...");
+            throw new botException("Your list is empty! nothing to see here...");
         } else {
             System.out.print("Here are the tasks in your list:");
 
@@ -120,7 +120,7 @@ public class oongaliegabangalie {
                 System.out.println((i + 1) + ". " + tasks[i]); // toString() in Task Class is automatically called
             }
         }
-
+        System.out.println("Better get to it quick!");
         System.out.println(DIVIDER);
     }
 
@@ -130,11 +130,11 @@ public class oongaliegabangalie {
      */
     private static void markTask(String input ,Task[] tasks, int taskCount) throws botException {
         // extract the task number
-        String taskNumberStr = input.substring(5).trim();
+        String taskNumberStr = input.substring(4).trim();
 
         // check if the task number is provided
         if (taskNumberStr.isEmpty()) {
-            throw new botException("PLease provide a task number after 'mark'");
+            throw new botException("How am I supposed to know which task to mark? Can you pLease provide a task number after 'mark'");
         }
 
         // parse task number
@@ -142,24 +142,25 @@ public class oongaliegabangalie {
         try {
             taskIndex = Integer.parseInt(taskNumberStr) - 1;
         } catch (NumberFormatException e) {
-            throw new botException("'" + taskNumberStr + "' is not a valid task number");
+            throw new botException("'" + taskNumberStr + "' isn't a task number bro");
         }
 
         // check if taskIndex is valid
         if (taskIndex < 0 || taskIndex >= taskCount) {
-            throw new botException("Task #" + (taskIndex + 1) + " doesn't exist! Check your list again.");
+            throw new botException("Task #" + (taskIndex + 1) + " doesn't exist! Check your list again (or your head)!");
         }
 
         // check if task is already done
         if (tasks[taskIndex].isDone) {
-            throw new botException("Task #" + (taskIndex + 1) + " is already marked as done!");
+            throw new botException("Task #" + (taskIndex + 1) + " is already marked as done! Don't worry I know you did it already!");
         }
 
         // mark as done
         tasks[taskIndex].markAsDone();
         System.out.println(DIVIDER);
-        System.out.println(" Nice! I've marked this task as done:");
+        System.out.println("Nice! I've marked this task as done:");
         System.out.println("   " + tasks[taskIndex]);
+        System.out.println("Now go do something else and stop bothering me!");
         System.out.println(DIVIDER);
     }
 
@@ -169,11 +170,11 @@ public class oongaliegabangalie {
      */
     private static void unmarkTask(String input, Task[] tasks, int taskCount) throws botException {
         // extract task number
-        String taskNumberStr = input.substring(7).trim();
+        String taskNumberStr = input.substring(6).trim();
 
         // check if the task number is provided
         if (taskNumberStr.isEmpty()) {
-            throw new botException("Please provide a task number after 'unmark'");
+            throw new botException("How am I supposed to know which task to unmark? Can you please provide a task number after 'unmark'");
         }
 
         // parse task number
@@ -181,24 +182,25 @@ public class oongaliegabangalie {
         try {
             taskIndex = Integer.parseInt(taskNumberStr) - 1;
         } catch (NumberFormatException e) {
-            throw new botException("'" + taskNumberStr + "' is not a valid task number");
+            throw new botException("'" + taskNumberStr + "' isn't a task number bro");
         }
 
         // check if taskIndex is valid
         if (taskIndex < 0 || taskIndex >= taskCount) {
-            throw new botException("Task #" + (taskIndex + 1) + " doesn't exist! Check your list again.");
+            throw new botException("Task #" + (taskIndex + 1) + " doesn't exist! Check your list again (or your head)!");
         }
 
         // check if task is already not done
         if (!tasks[taskIndex].isDone) {
-            throw new botException("Task #" + (taskIndex + 1) + " is already marked as not done!");
+            throw new botException("Task #" + (taskIndex + 1) + " is already marked as not done! You think I don't do my job properly?");
         }
 
         // unmark task
         tasks[taskIndex].markAsNotDone();
         System.out.println(DIVIDER);
-        System.out.println(" OK, I've marked this task as not done yet:");
+        System.out.println("OK, I've marked this task as not done yet:");
         System.out.println("   " + tasks[taskIndex]);
+        System.out.println("You better get to it...");
         System.out.println(DIVIDER);
     }
 
@@ -212,7 +214,7 @@ public class oongaliegabangalie {
         String description = input.length() > TODO_COMMAND.length() ?
                             input.substring(TODO_COMMAND.length()).trim() : "";
         if (description.isEmpty()) {
-            throw new botException("description cannot be empty");
+            throw new botException("stop wasting my time and add the description of the task after the command...");
         }
 
         Todo todo = new Todo(description);
@@ -225,24 +227,24 @@ public class oongaliegabangalie {
                         input.substring(DEADLINE_COMMAND.length()).trim() : "";
 
         if (content.isEmpty()) {
-            throw new botException("the deadline description cannot be empty");
+            throw new botException("haha very funny... why is there nothing after the command?");
         }
 
         // find the position of /by marker
         int byIndex = content.indexOf(DEADLINE_MARKER);
         if (byIndex == -1) { // error return value of indexOf
-            throw new botException("deadline with /by");
+            throw new botException("Wheres the '/by' marker? I need that please");
         }
 
         // extract description
         String description = content.substring(0, byIndex).trim();
         if (description.isEmpty()) {
-            throw new botException("the description cannot be empty");
+            throw new botException("Where is the description of the task? please add it before the deadline!");
         }
 
         String by = content.substring(byIndex + DEADLINE_MARKER.length()).trim();
         if (by.isEmpty()) {
-            throw new botException("please provide after /by");
+            throw new botException("Why is there nothing after '/by'? do you not want to finish on time?");
         }
 
         Deadline deadline = new Deadline(description, by);
@@ -255,7 +257,7 @@ public class oongaliegabangalie {
                         input.substring(EVENT_COMMAND.length()).trim() : "";
 
         if (content.isEmpty()) {
-            throw new botException("the description cannot be empty");
+            throw new botException("Why is there nothing after the command? are you playing with me?");
         }
 
         // find position of /from and /to markers
@@ -263,33 +265,33 @@ public class oongaliegabangalie {
         int toIndex = content.indexOf(EVENT_TO_MARKER);
 
         if (fromIndex == -1) {
-            throw new botException("set start time");
+            throw new botException("Wheres the '/from' marker? I need that please");
         }
 
         if (toIndex == -1) {
-            throw new botException("set end time");
+            throw new botException("Wheres the '/to' marker? I need that please");
         }
 
         if (toIndex < fromIndex) {
-            throw new botException("to should come after from");
+            throw new botException("I think you got it mixed up! it should be '/from' then '/to'");
         }
 
         // extract description
         String description = content.substring(0, fromIndex).trim();
         if (description.isBlank()) {
-            throw new botException("description cannot be empty");
+            throw new botException("Where is the description of the event? please add it before the timings!");
         }
 
         // extract start time
         String from = content.substring(fromIndex + EVENT_FROM_MARKER.length(), toIndex).trim();
         if (from.isEmpty()) {
-            throw new botException("rovide start time");
+            throw new botException("Why is there nothing after '/from'? can you pls follow instructions!");
         }
 
         // extract end time
         String to = content.substring(toIndex + EVENT_TO_MARKER.length()).trim();
         if (to.isEmpty()) {
-            throw new botException("provide end time");
+            throw new botException("Why is there nothing after '/to'? can you pls follow instructions!");
         }
 
         Event event = new Event(description, from, to);
@@ -340,12 +342,12 @@ public class oongaliegabangalie {
                     }
 
                     // marking function
-                    else if (userInput.startsWith("mark ")) { // mark task as done
+                    else if (userInput.startsWith("mark")) { // mark task as done
                         markTask(userInput, tasks, taskCount);
                     }
 
                     // unmarking function
-                    else if (userInput.startsWith("unmark ")) { // mark task as not done
+                    else if (userInput.startsWith("unmark")) { // mark task as not done
                         unmarkTask(userInput, tasks, taskCount);
                     }
 
