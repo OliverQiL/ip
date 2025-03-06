@@ -83,7 +83,12 @@ public class oongaliegabangalie {
     tasks = the array storing all tasks
     taskCount = the current count of tasks in the array
      */
-    private static int addTask(Task task, Task[] tasks, int taskCount) {
+    private static int addTask(Task task, Task[] tasks, int taskCount) throws botException{
+        // check if we've reached max capacity in list
+        if (taskCount >= MAX_TASKS) {
+            throw new botException("max limit reached");
+        }
+
         // add task to array
         tasks[taskCount] = task;
 
@@ -102,12 +107,18 @@ public class oongaliegabangalie {
     tasks = the array storing all tasks
     taskCount = the current count of tasks in the array
      */
-    private static void listTasks(Task[] tasks, int taskCount) {
+    private static void listTasks(Task[] tasks, int taskCount) throws botException{
         System.out.println(DIVIDER);
-        System.out.println("Here are the tasks in your list:");
 
-        for (int i = 0; i < taskCount; i++) {
-            System.out.println((i +1) + ". " + tasks[i]); // toString() in Task Class is automatically called
+        // check if list is empty
+        if (taskCount == 0) {
+            throw new botException("Your list is empty! Nothing to see here...");
+        } else {
+            System.out.print("Here are the tasks in your list:");
+
+            for (int i = 0; i < taskCount; i++) {
+                System.out.println((i + 1) + ". " + tasks[i]); // toString() in Task Class is automatically called
+            }
         }
 
         System.out.println(DIVIDER);
@@ -117,38 +128,42 @@ public class oongaliegabangalie {
     tasks = the array storing all tasks
     taskIndex = the index of the task to mark done
      */
-    private static void markTask(Task[] tasks, int taskIndex) {
+    private static void markTask(Task[] tasks, int taskIndex, int taskCount) throws botException{
         // check if taskIndex is valid
-        if (taskIndex >= 0 && taskIndex < tasks.length && tasks[taskIndex] != null) {
-            tasks[taskIndex].markAsDone();
-            System.out.println(DIVIDER);
-            System.out.println(" Nice! I've marked this task as done:");
-            System.out.println("   " + tasks[taskIndex]);
-            System.out.println(DIVIDER);
-        } else {
-            System.out.println(DIVIDER);
-            System.out.println(" Invalid task number!");
-            System.out.println(DIVIDER);
+        if (taskIndex < 0 || taskIndex >= taskCount) {
+            throw new botException("Task #" + (taskIndex + 1) + " doesn't exist! Check your list again.");
         }
+
+        if (tasks[taskIndex].isDone) {
+            throw new botException("Task #" + (taskIndex + 1) + " is already marked as done!");
+        }
+
+        tasks[taskIndex].markAsDone();
+        System.out.println(DIVIDER);
+        System.out.println(" Nice! I've marked this task as done:");
+        System.out.println("   " + tasks[taskIndex]);
+        System.out.println(DIVIDER);
     }
 
     /* marks specific task as not done
     tasks = the array storing all tasks
     taskIndex = the index of the task to mark not done
      */
-    private static void unmarkTask(Task[] tasks, int taskIndex) {
+    private static void unmarkTask(Task[] tasks, int taskIndex, int taskCount) throws botException{
         // check if taskIndex is valid
-        if (taskIndex >= 0 && taskIndex < tasks.length && tasks[taskIndex] != null) {
-            tasks[taskIndex].markAsNotDone();
-            System.out.println(DIVIDER);
-            System.out.println(" OK, I've marked this task as not done yet:");
-            System.out.println("   " + tasks[taskIndex]);
-            System.out.println(DIVIDER);
-        } else {
-            System.out.println(DIVIDER);
-            System.out.println(" Invalid task number!");
-            System.out.println(DIVIDER);
+        if (taskIndex < 0 || taskIndex >= taskCount) {
+            throw new botException("Task #" + (taskIndex + 1) + " doesn't exist! Check your list again.");
         }
+
+        if (!tasks[taskIndex].isDone) {
+            throw new botException("Task #" + (taskIndex + 1) + " is already marked as not done!");
+        }
+
+        tasks[taskIndex].markAsNotDone();
+        System.out.println(DIVIDER);
+        System.out.println(" OK, I've marked this task as not done yet:");
+        System.out.println("   " + tasks[taskIndex]);
+        System.out.println(DIVIDER);
     }
 
     /* creates a todo / deadline / event
@@ -156,74 +171,99 @@ public class oongaliegabangalie {
     tasks = the array storing all tasks
     taskCount = the current task count
      */
-    private static int todoCommand(String input, Task[] tasks, int taskCount) {
-        // check if todo description is given
-        if (input.length() <= TODO_COMMAND.length()) {
-            System.out.println("The description of todo task is not given");
-            return taskCount;
+    private static int todoCommand(String input, Task[] tasks, int taskCount) throws botException{
+        // first extract the description and then check if it's empty
+        String description = input.length() > TODO_COMMAND.length() ?
+                            input.substring(TODO_COMMAND.length()).trim() : "";
+        if (description.isEmpty()) {
+            throw new botException("description cannot be empty");
         }
 
-        // extract description
-        String description = input.substring(TODO_COMMAND.length()).trim();
         Todo todo = new Todo(description);
         return addTask(todo, tasks, taskCount);
     }
 
-    private static int deadlineCommand(String input, Task[] tasks, int taskCount) {
-        // check if deadline description is given
-        if (input.length() <= DEADLINE_COMMAND.length()) {
-            System.out.println("The description of deadline task is not given");
-            return taskCount;
-        }
+    private static int deadlineCommand(String input, Task[] tasks, int taskCount) throws botException {
+        // first extract the content then check if empty
+        String content = input.length() > DEADLINE_COMMAND.length() ?
+                        input.substring(DEADLINE_COMMAND.length()).trim() : "";
 
-        // extract content (including marker)
-        String content = input.substring(DEADLINE_COMMAND.length()).trim();
+        if (content.isEmpty()) {
+            throw new botException("the deadline description cannot be empty");
+        }
 
         // find the position of /by marker
         int byIndex = content.indexOf(DEADLINE_MARKER);
         if (byIndex == -1) { // error return value of indexOf
-            System.out.println("Please provide the deadline with '/by'");
-            return taskCount;
+            throw new botException("deadline with /by");
         }
 
         // extract description
         String description = content.substring(0, byIndex).trim();
+        if (description.isEmpty()) {
+            throw new botException("the description cannot be empty");
+        }
+
         String by = content.substring(byIndex + DEADLINE_MARKER.length()).trim();
+        if (by.isEmpty()) {
+            throw new botException("please provide after /by");
+        }
 
         Deadline deadline = new Deadline(description, by);
         return addTask(deadline, tasks, taskCount);
     }
 
-    private static int eventCommand(String input, Task[] tasks, int taskCount) {
-        // check if event description is provided
-        if (input.length() <= EVENT_COMMAND.length()) {
-            System.out.println("The description of event is not given");
-            return taskCount;
-        }
+    private static int eventCommand(String input, Task[] tasks, int taskCount) throws botException {
+        // first extract the content, then check if its empty
+        String content = input.length() > EVENT_COMMAND.length() ?
+                        input.substring(EVENT_COMMAND.length()).trim() : "";
 
-        // extract content after (including markers)
-        String content = input.substring(EVENT_COMMAND.length()).trim();
+        if (content.isEmpty()) {
+            throw new botException("the description cannot be empty");
+        }
 
         // find position of /from and /to markers
         int fromIndex = content.indexOf(EVENT_FROM_MARKER);
         int toIndex = content.indexOf(EVENT_TO_MARKER);
 
-        if (fromIndex == -1 || toIndex == -1) {
-            System.out.println("Please provide both start and end times with '/from' and '/to'");
-            return taskCount;
+        if (fromIndex == -1) {
+            throw new botException("set start time");
+        }
+
+        if (toIndex == -1) {
+            throw new botException("set end time");
+        }
+
+        if (toIndex < fromIndex) {
+            throw new botException("to should come after from");
         }
 
         // extract description
         String description = content.substring(0, fromIndex).trim();
+        if (description.isBlank()) {
+            throw new botException("description cannot be empty");
+        }
 
         // extract start time
         String from = content.substring(fromIndex + EVENT_FROM_MARKER.length(), toIndex).trim();
+        if (from.isEmpty()) {
+            throw new botException("rovide start time");
+        }
 
         // extract end time
         String to = content.substring(toIndex + EVENT_TO_MARKER.length()).trim();
+        if (to.isEmpty()) {
+            throw new botException("provide end time");
+        }
 
         Event event = new Event(description, from, to);
         return addTask(event, tasks, taskCount);
+    }
+
+    public static void printError(botException e) {
+        System.out.print(DIVIDER + NEWLINE);
+        System.out.print(e.getMessage());
+        System.out.print(NEWLINE + DIVIDER + NEWLINE);
     }
 
     public static void main(String[] args) {
@@ -251,36 +291,61 @@ public class oongaliegabangalie {
                     reachedMaxAnnoyance = true;
                 }
 
-                // logic for different command types
-                if (userInput.equalsIgnoreCase("list")) { // list all tasks
-                    listTasks(tasks, taskCount);
-                } else if (userInput.startsWith("mark ")) { // mark task as done
-                    try {
-                        int taskNumber = Integer.parseInt(userInput.substring(5).trim()); // abstract item number
-                        markTask(tasks, taskNumber - 1);
-                    } catch (NumberFormatException e) {
-                        System.out.println(DIVIDER);
-                        System.out.println("Please provide a valid task number");
-                        System.out.println(DIVIDER);
+                // logic for different inputs
+                try {
+                    // user input is empty spaces
+                    if (userInput.isBlank()) {
+                        throw new botException("hello say something pls");
                     }
-                } else if (userInput.startsWith("unmark ")) { // mark task as not done
-                    try {
-                        int taskNumber = Integer.parseInt(userInput.substring(7).trim());
-                        unmarkTask(tasks, taskNumber - 1);
-                    } catch (NumberFormatException e) {
-                        System.out.println(DIVIDER);
-                        System.out.println("Please provide a valid task number");
-                        System.out.println(DIVIDER);
+
+                    // list function
+                    else if (userInput.equalsIgnoreCase("list")) { // list all tasks
+                        listTasks(tasks, taskCount);
                     }
-                } else if (userInput.startsWith(TODO_COMMAND)) {
-                    taskCount = todoCommand(userInput, tasks, taskCount);
-                } else if (userInput.startsWith(DEADLINE_COMMAND)) {
-                    taskCount = deadlineCommand(userInput, tasks, taskCount);
-                } else if (userInput.startsWith(EVENT_COMMAND)) {
-                    taskCount = eventCommand(userInput, tasks, taskCount);
-                } else { // add new task to list
-                    Task newTask = new Task(userInput);
-                    taskCount = addTask(newTask, tasks, taskCount);
+
+                    // marking function
+                    else if (userInput.startsWith("mark ")) { // mark task as done
+                        try {
+                            int taskNumber = Integer.parseInt(userInput.substring(5).trim()); // abstract item number
+                            markTask(tasks, taskNumber - 1, taskCount);
+                        } catch (NumberFormatException e) {
+                            throw new botException("please provide valid task number");
+                        }
+                    }
+
+                    // unmarking function
+                    else if (userInput.startsWith("unmark ")) { // mark task as not done
+                        try {
+                            int taskNumber = Integer.parseInt(userInput.substring(7).trim());
+                            unmarkTask(tasks, taskNumber - 1, taskCount);
+                        } catch (NumberFormatException e) {
+                            throw new botException("please provide valid task number");
+                        }
+                    }
+
+                    // todo task
+                    else if (userInput.startsWith(TODO_COMMAND)) {
+                        taskCount = todoCommand(userInput, tasks, taskCount);
+                    }
+
+                    // deadline task
+                    else if (userInput.startsWith(DEADLINE_COMMAND)) {
+                        taskCount = deadlineCommand(userInput, tasks, taskCount);
+                    }
+
+                    // event task
+                    else if (userInput.startsWith(EVENT_COMMAND)) {
+                        taskCount = eventCommand(userInput, tasks, taskCount);
+                    }
+
+                    // if none of the above (default)
+                    else {
+                        throw new botException("i dunno what that means bruh");
+                    }
+
+
+                } catch (botException e) { // error handling
+                    printError(e);
                 }
             }
 
