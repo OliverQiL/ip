@@ -1,3 +1,5 @@
+package oongaliegabangalieBot.task;
+
 public class Event extends Task {
 
     // new variables - start and end time

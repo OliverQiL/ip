@@ -1,3 +1,5 @@
+package oongaliegabangalieBot.task;
+
 public class Task {
     protected String description; // description of task
     protected boolean isDone; // whether task is completed
@@ -6,6 +8,11 @@ public class Task {
     public Task(String description) {
         this.description = description;
         this.isDone = false;
+    }
+
+    // getter method for isDone
+    public boolean getIsDone() {
+        return isDone;
     }
 
     // return string either X or space depending on task status

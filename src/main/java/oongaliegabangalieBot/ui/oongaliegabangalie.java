@@ -1,4 +1,12 @@
+package oongaliegabangalieBot.ui;
+
 import java.util.Scanner;
+
+import oongaliegabangalieBot.exception.botException;
+import oongaliegabangalieBot.task.Task;
+import oongaliegabangalieBot.task.Deadline;
+import oongaliegabangalieBot.task.Event;
+import oongaliegabangalieBot.task.Todo;
 
 public class oongaliegabangalie {
     // basic textual building blocks
@@ -83,7 +91,7 @@ public class oongaliegabangalie {
     tasks = the array storing all tasks
     taskCount = the current count of tasks in the array
      */
-    private static int addTask(Task task, Task[] tasks, int taskCount) throws botException{
+    private static int addTask(Task task, Task[] tasks, int taskCount) throws botException {
         // check if we've reached max capacity in list
         if (taskCount >= MAX_TASKS) {
             throw new botException("You're so screwed... number of tasks has reached its limit man");
@@ -128,7 +136,7 @@ public class oongaliegabangalie {
     tasks = the array storing all tasks
     taskIndex = the index of the task to mark done
      */
-    private static void markTask(String input ,Task[] tasks, int taskCount) throws botException {
+    private static void markTask(String input , Task[] tasks, int taskCount) throws botException {
         // extract the task number
         String taskNumberStr = input.substring(4).trim();
 
@@ -151,7 +159,7 @@ public class oongaliegabangalie {
         }
 
         // check if task is already done
-        if (tasks[taskIndex].isDone) {
+        if (tasks[taskIndex].getIsDone()) {
             throw new botException("Task #" + (taskIndex + 1) + " is already marked as done! Don't worry I know you did it already!");
         }
 
@@ -191,7 +199,7 @@ public class oongaliegabangalie {
         }
 
         // check if task is already not done
-        if (!tasks[taskIndex].isDone) {
+        if (!tasks[taskIndex].getIsDone()) {
             throw new botException("Task #" + (taskIndex + 1) + " is already marked as not done! You think I don't do my job properly?");
         }
 
