@@ -15,6 +15,8 @@ public class Task {
         return isDone;
     }
 
+    public String getDescription() { return description; }
+
     // return string either X or space depending on task status
     public String getStatusIcon() {
         return (isDone ? "X" : " "); // mark done task with X
