@@ -1,9 +1,11 @@
 package oongaliegabangalieBot.ui;
 
+import java.io.File;
 import java.util.Scanner;
 import java.util.ArrayList;
 
 import oongaliegabangalieBot.exception.botException;
+import oongaliegabangalieBot.storage.Storage;
 import oongaliegabangalieBot.task.Task;
 import oongaliegabangalieBot.task.Deadline;
 import oongaliegabangalieBot.task.Event;
@@ -14,6 +16,16 @@ public class oongaliegabangalie {
     private static final String DIVIDER = "____________________________________________________________";
     private static final String NEWLINE = System.lineSeparator();
     private static final String BOT_NAME = "Oongaliegabangalie";
+
+    private static final int MAX_TASKS = 100;
+
+    // storage filepath
+    private static final String STORAGE_DIRECTORY = "data";
+    private static final String STORAGE_FILENAME = "oongaliegabangalie.txt";
+    private static final String STORAGE_PATH = STORAGE_DIRECTORY + File.separator + STORAGE_FILENAME;
+
+    // storage object
+    private static Storage storage;
 
     // command keywords
     private static final String TODO_COMMAND = "todo";
@@ -93,6 +105,9 @@ public class oongaliegabangalie {
     private static void addTask(Task task, ArrayList<Task> tasks) {
         // add task to array
         tasks.add(task);
+
+        // save tasks to storage
+        saveTasksToStorage(tasks, taskCount + 1);
 
         // confirms with user
         System.out.println(DIVIDER);
@@ -207,6 +222,9 @@ public class oongaliegabangalie {
             throw new botException("Task #" + (taskIndex + 1) + " is already marked as done! Don't worry I know you did it already!");
         }
 
+        // save tasks to storage
+        saveTasksToStorage(tasks, taskCount);
+
         // mark as done
         tasks.get(taskIndex).markAsDone();
         System.out.println(DIVIDER);
@@ -246,6 +264,9 @@ public class oongaliegabangalie {
         if (!tasks.get(taskIndex).getIsDone()) {
             throw new botException("Task #" + (taskIndex + 1) + " is already marked as not done! You think I don't do my job properly?");
         }
+
+        // save tasks to storage
+        saveTasksToStorage(tasks, taskCount);
 
         // unmark task
         tasks.get(taskIndex).markAsNotDone();
@@ -349,6 +370,14 @@ public class oongaliegabangalie {
         addTask(event, tasks);
     }
 
+    private static void saveTasksToStorage(Task[] tasks, int taskCount) {
+        try {
+            storage.saveTasks(tasks, taskCount);
+        } catch (botException e) {
+            System.out.println("Warning: Failed to save tasks: " + e.getMessage());
+        }
+    }
+
     public static void printError(botException e) {
         System.out.print(DIVIDER + NEWLINE);
         System.out.print(e.getMessage());
@@ -358,6 +387,9 @@ public class oongaliegabangalie {
     public static void main(String[] args) {
         printGreeting();
 
+        // initialize storage
+        storage = new Storage(STORAGE_PATH);
+
         Scanner scanner = new Scanner(System.in);
         String userInput;
 
@@ -366,6 +398,31 @@ public class oongaliegabangalie {
 
         // initialize task storage using ArrayList instead of Array
         ArrayList<Task> tasks = new ArrayList<>();
+
+        // load tasks from storage
+        try {
+            Task[] loadedTasks = storage.loadTasks();
+            // Count the loaded tasks (stop at first null entry)
+            int loadedTaskCount = 0;
+            while (loadedTaskCount < loadedTasks.length && loadedTasks[loadedTaskCount] != null) {
+                loadedTaskCount++;
+            }
+
+            // Copy loaded tasks to our tasks array if there are any
+            if (loadedTaskCount > 0) {
+                System.arraycopy(loadedTasks, 0, tasks, 0, loadedTaskCount);
+                taskCount = loadedTaskCount;
+
+                System.out.println(DIVIDER);
+                System.out.println("I've loaded " + taskCount + " tasks from storage.");
+                System.out.println(DIVIDER);
+            }
+        } catch (botException e) {
+            System.out.println(DIVIDER);
+            System.out.println("Warning: Error loading tasks: " + e.getMessage());
+            System.out.println("Starting with an empty task list.");
+            System.out.println(DIVIDER);
+        }
 
         // main program loop - continues until user types bye
         do {
