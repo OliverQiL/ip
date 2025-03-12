@@ -17,8 +17,6 @@ public class oongaliegabangalie {
     private static final String NEWLINE = System.lineSeparator();
     private static final String BOT_NAME = "Oongaliegabangalie";
 
-    private static final int MAX_TASKS = 100;
-
     // storage filepath
     private static final String STORAGE_DIRECTORY = "data";
     private static final String STORAGE_FILENAME = "oongaliegabangalie.txt";
@@ -107,7 +105,7 @@ public class oongaliegabangalie {
         tasks.add(task);
 
         // save tasks to storage
-        saveTasksToStorage(tasks, taskCount + 1);
+        saveTasksToStorage(tasks);
 
         // confirms with user
         System.out.println(DIVIDER);
@@ -223,7 +221,7 @@ public class oongaliegabangalie {
         }
 
         // save tasks to storage
-        saveTasksToStorage(tasks, taskCount);
+        saveTasksToStorage(tasks);
 
         // mark as done
         tasks.get(taskIndex).markAsDone();
@@ -266,7 +264,7 @@ public class oongaliegabangalie {
         }
 
         // save tasks to storage
-        saveTasksToStorage(tasks, taskCount);
+        saveTasksToStorage(tasks);
 
         // unmark task
         tasks.get(taskIndex).markAsNotDone();
@@ -370,9 +368,9 @@ public class oongaliegabangalie {
         addTask(event, tasks);
     }
 
-    private static void saveTasksToStorage(Task[] tasks, int taskCount) {
+    private static void saveTasksToStorage(ArrayList<Task> tasks) {
         try {
-            storage.saveTasks(tasks, taskCount);
+            storage.saveTasks(tasks);
         } catch (botException e) {
             System.out.println("Warning: Failed to save tasks: " + e.getMessage());
         }
@@ -401,21 +399,14 @@ public class oongaliegabangalie {
 
         // load tasks from storage
         try {
-            Task[] loadedTasks = storage.loadTasks();
-            // Count the loaded tasks (stop at first null entry)
-            int loadedTaskCount = 0;
-            while (loadedTaskCount < loadedTasks.length && loadedTasks[loadedTaskCount] != null) {
-                loadedTaskCount++;
-            }
-
-            // Copy loaded tasks to our tasks array if there are any
-            if (loadedTaskCount > 0) {
-                System.arraycopy(loadedTasks, 0, tasks, 0, loadedTaskCount);
-                taskCount = loadedTaskCount;
+            ArrayList<Task> loadedTasks = storage.loadTasks();
+            if (!loadedTasks.isEmpty()) {
+                tasks.addAll(loadedTasks);
 
                 System.out.println(DIVIDER);
-                System.out.println("I've loaded " + taskCount + " tasks from storage.");
+                System.out.println("I've loaded " + tasks.size()+ " tasks from storage.");
                 System.out.println(DIVIDER);
+
             }
         } catch (botException e) {
             System.out.println(DIVIDER);

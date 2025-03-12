@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.lang.reflect.Array;
+import java.util.ArrayList;
 import java.util.Scanner;
 
 import oongaliegabangalieBot.exception.botException;
@@ -15,7 +17,6 @@ import oongaliegabangalieBot.task.Todo;
 public class Storage {
     private final String filePath;
     private final String directoryPath;
-    private static final int MAX_TASKS = 100;
 
     // Constructor initializes the file path
     public Storage(String filePath) {
@@ -31,7 +32,7 @@ public class Storage {
             D | isDone | description | by
             E | isDone | description | from | to
     */
-    public void saveTasks(Task[] tasks, int taskCount) throws botException {
+    public void saveTasks(ArrayList<Task> tasks) throws botException {
         try {
             // Create directory if it doesn't exist
             File directory = new File(directoryPath);
@@ -43,8 +44,7 @@ public class Storage {
             FileWriter writer = new FileWriter(filePath);
 
             // Write each task to the file
-            for (int i = 0; i < taskCount; i++) {
-                Task task = tasks[i];
+            for (Task task : tasks) {
                 if (task instanceof Todo) {
                     writer.write("T | " + (task.getIsDone() ? "1" : "0") + " | " + task.getDescription());
                 } else if (task instanceof Deadline) {
@@ -66,8 +66,8 @@ public class Storage {
     }
 
     // Loads tasks from the file
-    public Task[] loadTasks() throws botException {
-        Task[] tasks = new Task[MAX_TASKS];
+    public ArrayList<Task> loadTasks() throws botException {
+        ArrayList<Task> tasks = new ArrayList<>();
 
         // Check if file exists, if not return empty array
         File file = new File(filePath);
@@ -77,9 +77,8 @@ public class Storage {
 
         try {
             Scanner scanner = new Scanner(file);
-            int taskCount = 0;
 
-            while (scanner.hasNextLine() && taskCount < MAX_TASKS) {
+            while (scanner.hasNextLine()) {
                 try {
                     String line = scanner.nextLine();
 
@@ -131,8 +130,7 @@ public class Storage {
                         task.markAsDone();
                     }
 
-                    tasks[taskCount] = task;
-                    taskCount++;
+                    tasks.add(task);
                 } catch (Exception e) {
                     // Handle corrupted line, print warning and continue
                     System.out.println("Warning: Skipping corrupted line. Error: " + e.getMessage());
