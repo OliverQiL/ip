@@ -1,6 +1,7 @@
 package oongaliegabangalieBot.ui;
 
 import java.util.Scanner;
+import java.util.ArrayList;
 
 import oongaliegabangalieBot.exception.botException;
 import oongaliegabangalieBot.task.Task;
@@ -14,8 +15,6 @@ public class oongaliegabangalie {
     private static final String NEWLINE = System.lineSeparator();
     private static final String BOT_NAME = "Oongaliegabangalie";
 
-    private static final int MAX_TASKS = 100;
-
     // command keywords
     private static final String TODO_COMMAND = "todo";
     private static final String DEADLINE_COMMAND = "deadline";
@@ -23,6 +22,7 @@ public class oongaliegabangalie {
     private static final String DEADLINE_MARKER = "/by";
     private static final String EVENT_FROM_MARKER = "/from";
     private static final String EVENT_TO_MARKER = "/to";
+    private static final String DELETE_COMMAND = "delete";
 
     // annoyance messages in array format
     private static final String[] ANNOYANCE_MSGS = {
@@ -88,44 +88,88 @@ public class oongaliegabangalie {
 
     /* adds a new task to task list, stores in task array, confirms with user, and updates taskCount
     task = task to add
-    tasks = the array storing all tasks
-    taskCount = the current count of tasks in the array
+    tasks = the ArrayList storing all tasks
      */
-    private static int addTask(Task task, Task[] tasks, int taskCount) throws botException {
-        // check if we've reached max capacity in list
-        if (taskCount >= MAX_TASKS) {
-            throw new botException("You're so screwed... number of tasks has reached its limit man");
-        }
-
+    private static void addTask(Task task, ArrayList<Task> tasks) {
         // add task to array
-        tasks[taskCount] = task;
+        tasks.add(task);
 
         // confirms with user
         System.out.println(DIVIDER);
         System.out.println("Got it. I've added this task:");
         System.out.println(task);
-        System.out.println("Now you have " + (taskCount + 1) + " tasks in the list.");
-        System.out.println(DIVIDER);
+        System.out.println("Now you have " + tasks.size() + " tasks in the list.");
 
-        // return updated task count
-        return taskCount + 1;
+        // short message if tasks.size > certain number
+        if (tasks.size() >= 20) {
+            System.out.println("you are so screwed...");
+        } else if (tasks.size() >= 15) {
+            System.out.println("better knock a couple of these down before its too late!");
+        } else if (tasks.size() >= 10) {
+            System.out.println("looks like your tasks are piling up...");
+        } else if (tasks.size() >= 5) {
+            System.out.println("and so it begins... better not let it get out of hand");
+        }
+
+        System.out.println(DIVIDER);
     }
 
-    /* displays all tasks in the task list
-    tasks = the array storing all tasks
-    taskCount = the current count of tasks in the array
+    /* deletes a task from the list
+    input = user input
+    tasks = the ArrayList storing all tasks
      */
-    private static void listTasks(Task[] tasks, int taskCount) throws botException{
+    private static void deleteTask(String input, ArrayList<Task> tasks) throws botException {
+        // check if list is empty
+        if (tasks.isEmpty()) {
+            throw new botException("Your list is empty man... nothing to delete");
+        }
+
+        // extract the task number
+        String taskNumberStr = input.substring(DELETE_COMMAND.length()).trim();
+
+        // check if the task number is provided
+        if (taskNumberStr.isEmpty()) {
+            throw new botException("Which task do you want me to delete? provide a task number after 'delete'");
+        }
+
+        // parse task number
+        int taskIndex;
+        try {
+            taskIndex = Integer.parseInt(taskNumberStr) - 1;
+        } catch (NumberFormatException e) {
+            throw new botException("'" + taskNumberStr + "' isn't a task number bro");
+        }
+
+        // check if taskIndex is valid
+        if (taskIndex < 0 || taskIndex >= tasks.size()) {
+            throw new botException("Task #" + (taskIndex + 1) + " doesn't exist! Check your list again (or your head)!");
+        }
+
+        // print out confirmation message before actually deleting (unable to access deleted task after removing)
+        System.out.println(DIVIDER);
+        System.out.println("Noted. I've removed this task:");
+        System.out.println(tasks.get(taskIndex));
+        System.out.println("Now you have " + (tasks.size() - 1) + " tasks in the list");
+        System.out.println(DIVIDER);
+
+        tasks.remove(taskIndex);
+    }
+
+
+    /* displays all tasks in the task list
+    tasks = the ArrayList storing all tasks
+     */
+    private static void listTasks(ArrayList<Task> tasks) throws botException{
         System.out.println(DIVIDER);
 
         // check if list is empty
-        if (taskCount == 0) {
+        if (tasks.isEmpty()) {
             throw new botException("Your list is empty! nothing to see here...");
         } else {
-            System.out.print("Here are the tasks in your list:");
+            System.out.println("Here are the tasks in your list:");
 
-            for (int i = 0; i < taskCount; i++) {
-                System.out.println((i + 1) + ". " + tasks[i]); // toString() in Task Class is automatically called
+            for (int i = 0; i < tasks.size(); i++) {
+                System.out.println((i + 1) + ". " + tasks.get(i)); // toString() in Task Class is automatically called
             }
         }
         System.out.println("Better get to it quick!");
@@ -133,10 +177,10 @@ public class oongaliegabangalie {
     }
 
     /* marks specific task as done
-    tasks = the array storing all tasks
+    tasks = the ArrayList storing all tasks
     taskIndex = the index of the task to mark done
      */
-    private static void markTask(String input , Task[] tasks, int taskCount) throws botException {
+    private static void markTask(String input , ArrayList<Task> tasks) throws botException {
         // extract the task number
         String taskNumberStr = input.substring(4).trim();
 
@@ -154,29 +198,29 @@ public class oongaliegabangalie {
         }
 
         // check if taskIndex is valid
-        if (taskIndex < 0 || taskIndex >= taskCount) {
+        if (taskIndex < 0 || taskIndex >= tasks.size()) {
             throw new botException("Task #" + (taskIndex + 1) + " doesn't exist! Check your list again (or your head)!");
         }
 
         // check if task is already done
-        if (tasks[taskIndex].getIsDone()) {
+        if (tasks.get(taskIndex).getIsDone()) {
             throw new botException("Task #" + (taskIndex + 1) + " is already marked as done! Don't worry I know you did it already!");
         }
 
         // mark as done
-        tasks[taskIndex].markAsDone();
+        tasks.get(taskIndex).markAsDone();
         System.out.println(DIVIDER);
         System.out.println("Nice! I've marked this task as done:");
-        System.out.println("   " + tasks[taskIndex]);
+        System.out.println("   " + tasks.get(taskIndex));
         System.out.println("Now go do something else and stop bothering me!");
         System.out.println(DIVIDER);
     }
 
     /* marks specific task as not done
-    tasks = the array storing all tasks
+    tasks = the ArrayList storing all tasks
     taskIndex = the index of the task to mark not done
      */
-    private static void unmarkTask(String input, Task[] tasks, int taskCount) throws botException {
+    private static void unmarkTask(String input, ArrayList<Task> tasks) throws botException {
         // extract task number
         String taskNumberStr = input.substring(6).trim();
 
@@ -194,30 +238,29 @@ public class oongaliegabangalie {
         }
 
         // check if taskIndex is valid
-        if (taskIndex < 0 || taskIndex >= taskCount) {
+        if (taskIndex < 0 || taskIndex >= tasks.size()) {
             throw new botException("Task #" + (taskIndex + 1) + " doesn't exist! Check your list again (or your head)!");
         }
 
         // check if task is already not done
-        if (!tasks[taskIndex].getIsDone()) {
+        if (!tasks.get(taskIndex).getIsDone()) {
             throw new botException("Task #" + (taskIndex + 1) + " is already marked as not done! You think I don't do my job properly?");
         }
 
         // unmark task
-        tasks[taskIndex].markAsNotDone();
+        tasks.get(taskIndex).markAsNotDone();
         System.out.println(DIVIDER);
         System.out.println("OK, I've marked this task as not done yet:");
-        System.out.println("   " + tasks[taskIndex]);
+        System.out.println("   " + tasks.get(taskIndex));
         System.out.println("You better get to it...");
         System.out.println(DIVIDER);
     }
 
     /* creates a todo / deadline / event
     input = user input
-    tasks = the array storing all tasks
-    taskCount = the current task count
+    tasks = the ArrayList storing all tasks
      */
-    private static int todoCommand(String input, Task[] tasks, int taskCount) throws botException{
+    private static void todoCommand(String input, ArrayList<Task> tasks) throws botException{
         // first extract the description and then check if it's empty
         String description = input.length() > TODO_COMMAND.length() ?
                             input.substring(TODO_COMMAND.length()).trim() : "";
@@ -226,10 +269,10 @@ public class oongaliegabangalie {
         }
 
         Todo todo = new Todo(description);
-        return addTask(todo, tasks, taskCount);
+        addTask(todo, tasks);
     }
 
-    private static int deadlineCommand(String input, Task[] tasks, int taskCount) throws botException {
+    private static void deadlineCommand(String input, ArrayList<Task> tasks) throws botException {
         // first extract the content then check if empty
         String content = input.length() > DEADLINE_COMMAND.length() ?
                         input.substring(DEADLINE_COMMAND.length()).trim() : "";
@@ -256,10 +299,10 @@ public class oongaliegabangalie {
         }
 
         Deadline deadline = new Deadline(description, by);
-        return addTask(deadline, tasks, taskCount);
+        addTask(deadline, tasks);
     }
 
-    private static int eventCommand(String input, Task[] tasks, int taskCount) throws botException {
+    private static void eventCommand(String input, ArrayList<Task> tasks) throws botException {
         // first extract the content, then check if its empty
         String content = input.length() > EVENT_COMMAND.length() ?
                         input.substring(EVENT_COMMAND.length()).trim() : "";
@@ -303,7 +346,7 @@ public class oongaliegabangalie {
         }
 
         Event event = new Event(description, from, to);
-        return addTask(event, tasks, taskCount);
+        addTask(event, tasks);
     }
 
     public static void printError(botException e) {
@@ -321,9 +364,8 @@ public class oongaliegabangalie {
         int commandCount = 0;
         boolean reachedMaxAnnoyance = false;
 
-        // initialize task storage with max capacity as defined
-        Task[] tasks = new Task[MAX_TASKS];
-        int taskCount = 0;
+        // initialize task storage using ArrayList instead of Array
+        ArrayList<Task> tasks = new ArrayList<>();
 
         // main program loop - continues until user types bye
         do {
@@ -344,34 +386,39 @@ public class oongaliegabangalie {
                         throw new botException("hello say something pls");
                     }
 
+                    // delete function
+                    else if (userInput.startsWith(DELETE_COMMAND)) {
+                        deleteTask(userInput, tasks);
+                    }
+
                     // list function
                     else if (userInput.equalsIgnoreCase("list")) { // list all tasks
-                        listTasks(tasks, taskCount);
+                        listTasks(tasks);
                     }
 
                     // marking function
                     else if (userInput.startsWith("mark")) { // mark task as done
-                        markTask(userInput, tasks, taskCount);
+                        markTask(userInput, tasks);
                     }
 
                     // unmarking function
                     else if (userInput.startsWith("unmark")) { // mark task as not done
-                        unmarkTask(userInput, tasks, taskCount);
+                        unmarkTask(userInput, tasks);
                     }
 
                     // todo task
                     else if (userInput.startsWith(TODO_COMMAND)) {
-                        taskCount = todoCommand(userInput, tasks, taskCount);
+                        todoCommand(userInput, tasks);
                     }
 
                     // deadline task
                     else if (userInput.startsWith(DEADLINE_COMMAND)) {
-                        taskCount = deadlineCommand(userInput, tasks, taskCount);
+                        deadlineCommand(userInput, tasks);
                     }
 
                     // event task
                     else if (userInput.startsWith(EVENT_COMMAND)) {
-                        taskCount = eventCommand(userInput, tasks, taskCount);
+                        eventCommand(userInput, tasks);
                     }
 
                     // if none of the above (default)
