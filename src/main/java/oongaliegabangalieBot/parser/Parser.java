@@ -1,5 +1,9 @@
 package oongaliegabangalieBot.parser;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+
 import oongaliegabangalieBot.commands.*;
 import oongaliegabangalieBot.exception.botException;
 
@@ -15,6 +19,8 @@ public class Parser {
     private static final String LIST_COMMAND = "list";
     private static final String MARK_COMMAND = "mark";
     private static final String UNMARK_COMMAND = "unmark";
+    private static final String FIND_DATE_COMMAND = "finddate"; // New command for finding by date
+
 
     /**
      * Parses a command string and returns a Command object
@@ -47,6 +53,8 @@ public class Parser {
             return parseMarkCommand(input);
         } else if (input.startsWith(UNMARK_COMMAND)) {
             return parseUnmarkCommand(input);
+        } else if (input.startsWith(FIND_DATE_COMMAND)) {
+            return parseFindDateCommand(input);
         } else {
             throw new botException("I don't know what that means");
         }
@@ -103,6 +111,27 @@ public class Parser {
         }
 
         return new String[]{description, by};
+    }
+
+    /**
+     * Parses a find date command
+     */
+    private Command parseFindDateCommand(String input) throws botException {
+        String dateStr = input.length() > FIND_DATE_COMMAND.length() ?
+                input.substring(FIND_DATE_COMMAND.length()).trim() : "";
+
+        if (dateStr.isEmpty()) {
+            throw new botException("Please specify a date after 'finddate' (e.g., finddate 2019-12-02)");
+        }
+
+        try {
+            // Try to parse the date to validate it
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+            LocalDateTime.parse(dateStr + " 00:00", DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
+            return new FindDateCommand(dateStr);
+        } catch (DateTimeParseException e) {
+            throw new botException("Invalid date format. Please use yyyy-MM-dd format (e.g., 2019-12-02)");
+        }
     }
 
     /**

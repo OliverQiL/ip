@@ -133,6 +133,31 @@ public class Ui {
     }
 
     /**
+     * Shows tasks on a specific date
+     */
+    public void showTasksOnDate(ArrayList<Task> tasks, String dateStr) {
+        System.out.println(DIVIDER);
+
+        if (tasks.isEmpty()) {
+            System.out.println("No tasks found on " + dateStr + "! you're free! (or I can't read your dates...)");
+        } else {
+            System.out.println("Here are the tasks on " + dateStr + ":");
+
+            for (int i = 0; i < tasks.size(); i++) {
+                System.out.println((i + 1) + ". " + tasks.get(i));
+            }
+
+            if (tasks.size() > 2) {
+                System.out.println("Busy day ahead! better not procrastinate!");
+            } else {
+                System.out.println("Not too busy, but you should still get on with it!");
+            }
+        }
+
+        System.out.println(DIVIDER);
+    }
+
+    /**
      * Shows a message after marking a task as done
      */
     public void showMarkedDoneTask(Task task) {
