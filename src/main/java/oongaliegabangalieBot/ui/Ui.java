@@ -133,6 +133,31 @@ public class Ui {
     }
 
     /**
+     * Shows tasks on a specific date
+     */
+    public void showTasksOnDate(ArrayList<Task> tasks, String dateStr) {
+        System.out.println(DIVIDER);
+
+        if (tasks.isEmpty()) {
+            System.out.println("No tasks found on " + dateStr + "! you're free! (or I can't read your dates...)");
+        } else {
+            System.out.println("Here are the tasks on " + dateStr + ":");
+
+            for (int i = 0; i < tasks.size(); i++) {
+                System.out.println((i + 1) + ". " + tasks.get(i));
+            }
+
+            if (tasks.size() > 2) {
+                System.out.println("Busy day ahead! better not procrastinate!");
+            } else {
+                System.out.println("Not too busy, but you should still get on with it!");
+            }
+        }
+
+        System.out.println(DIVIDER);
+    }
+
+    /**
      * Shows a message after marking a task as done
      */
     public void showMarkedDoneTask(Task task) {
@@ -151,6 +176,30 @@ public class Ui {
         System.out.println("OK, I've marked this task as not done yet:");
         System.out.println("   " + task);
         System.out.println("You better get to it...");
+        System.out.println(DIVIDER);
+    }
+
+    /**
+     * Shows tasks matching a keyword
+     */
+    public void showMatchingTasks(ArrayList<Task> tasks, String keyword) {
+        System.out.println(DIVIDER);
+
+        if (tasks.isEmpty()) {
+            System.out.println("No tasks matched the keyword '" + keyword + "'!");
+            System.out.println("Maybe try another search term? Or are you sure you spelled it right?");
+        } else {
+            System.out.println("Here are the matching tasks in your list:");
+
+            for (int i = 0; i < tasks.size(); i++) {
+                System.out.println((i + 1) + "." + tasks.get(i));
+            }
+
+            if (tasks.size() > 3) {
+                System.out.println("Wow that's a lot of matches! You sure use '" + keyword + "' a lot!");
+            }
+        }
+
         System.out.println(DIVIDER);
     }
 }

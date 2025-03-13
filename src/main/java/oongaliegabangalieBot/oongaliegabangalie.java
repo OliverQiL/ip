@@ -47,6 +47,10 @@ public class oongaliegabangalie {
         }
     }
 
+    /**
+     * Core program logic
+     * Ties together other classes and functions
+     */
     public void run() {
         ui.showWelcome();
 

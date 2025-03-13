@@ -6,6 +6,9 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Scanner;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 
 import oongaliegabangalieBot.exception.botException;
 import oongaliegabangalieBot.task.Deadline;
@@ -16,6 +19,8 @@ import oongaliegabangalieBot.task.Todo;
 public class Storage {
     private final String filePath;
     private final String directoryPath;
+    private static final DateTimeFormatter STORAGE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+
 
     // Constructor initializes the file path
     public Storage(String filePath) {
@@ -48,12 +53,15 @@ public class Storage {
                     writer.write("T | " + (task.getIsDone() ? "1" : "0") + " | " + task.getDescription());
                 } else if (task instanceof Deadline) {
                     Deadline deadline = (Deadline) task;
+                    String byForStorage = deadline.getByForStorage(); // Get the standardized date format
                     writer.write("D | " + (task.getIsDone() ? "1" : "0") + " | " +
-                            task.getDescription() + " | " + deadline.getBy());
+                            task.getDescription() + " | " + byForStorage);
                 } else if (task instanceof Event) {
                     Event event = (Event) task;
+                    String fromForStorage = event.getFromForStorage();
+                    String toForStorage = event.getToForStorage();
                     writer.write("E | " + (task.getIsDone() ? "1" : "0") + " | " +
-                            task.getDescription() + " | " + event.getFrom() + " | " + event.getTo());
+                            task.getDescription() + " | " + fromForStorage + " | " + toForStorage);
                 }
                 writer.write(System.lineSeparator()); // Add newline
             }
@@ -110,7 +118,10 @@ public class Storage {
                                 System.out.println("Warning: Skipping invalid Deadline format: " + line);
                                 continue;
                             }
-                            task = new Deadline(description, parts[3]);
+
+                            // Try to parse the date/time
+                            String byString = parts[3];
+                            task = new Deadline(description, byString);
                             break;
                         case 'E': // Event
                             if (parts.length < 5) {
