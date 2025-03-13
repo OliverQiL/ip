@@ -178,4 +178,28 @@ public class Ui {
         System.out.println("You better get to it...");
         System.out.println(DIVIDER);
     }
+
+    /**
+     * Shows tasks matching a keyword
+     */
+    public void showMatchingTasks(ArrayList<Task> tasks, String keyword) {
+        System.out.println(DIVIDER);
+
+        if (tasks.isEmpty()) {
+            System.out.println("No tasks matched the keyword '" + keyword + "'!");
+            System.out.println("Maybe try another search term? Or are you sure you spelled it right?");
+        } else {
+            System.out.println("Here are the matching tasks in your list:");
+
+            for (int i = 0; i < tasks.size(); i++) {
+                System.out.println((i + 1) + "." + tasks.get(i));
+            }
+
+            if (tasks.size() > 3) {
+                System.out.println("Wow that's a lot of matches! You sure use '" + keyword + "' a lot!");
+            }
+        }
+
+        System.out.println(DIVIDER);
+    }
 }
