@@ -15,6 +15,7 @@ public class Parser {
     private static final String LIST_COMMAND = "list";
     private static final String MARK_COMMAND = "mark";
     private static final String UNMARK_COMMAND = "unmark";
+    private static final String FIND_COMMAND = "find";
 
     /**
      * Parses a command string and returns a Command object
@@ -47,6 +48,8 @@ public class Parser {
             return parseMarkCommand(input);
         } else if (input.startsWith(UNMARK_COMMAND)) {
             return parseUnmarkCommand(input);
+        } else if (input.startsWith(FIND_COMMAND)) {
+            return parseFindCommand(input);
         } else {
             throw new botException("I don't know what that means");
         }
@@ -212,5 +215,19 @@ public class Parser {
         } catch (NumberFormatException e) {
             throw new botException("'" + taskNumberStr + "' isn't a task number bro");
         }
+    }
+
+    /**
+     * Parses a find command
+     */
+    private Command parseFindCommand(String input) throws botException {
+        String keyword = input.length() > FIND_COMMAND.length() ?
+                input.substring(FIND_COMMAND.length()).trim() : "";
+
+        if (keyword.isEmpty()) {
+            throw new botException("How am I supposed to find anything when you don't tell me what to look for? Please provide a keyword after 'find'");
+        }
+
+        return new FindCommand(keyword);
     }
 }
